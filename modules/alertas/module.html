@@ -1,0 +1,65 @@
+﻿<!-- modules/alertas/module.html
+     Template de referencia para el modulo Alertas. -->
+
+<div x-data="alertasData" x-init="init()">
+  <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+    <i class="bi bi-exclamation-triangle"></i> Alertas
+  </h2>
+
+  <div class="flex flex-wrap gap-2 mb-4">
+    <button class="btn btn-ghost" onclick="window.MODULES.alertas.marcarTodasLeidas()">
+      <i class="bi bi-check-all"></i> Marcar todas leidas
+    </button>
+    <button class="btn btn-ghost" onclick="window.MODULES.alertas.actualizarAlertas()">
+      <i class="bi bi-arrow-clockwise"></i> Verificar stock
+    </button>
+  </div>
+
+  <div class="space-y-3" x-show="items && items.length">
+    <template x-for="item in items" :key="item.id">
+      <div class="card bg-base-100 border shadow-sm" :class="item.leida ? 'opacity-60' : 'border-warning'">
+        <div class="card-body p-4">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                 :class="item.leida ? 'bg-base-200' : 'bg-warning/20'">
+              <i class="bi bi-exclamation-triangle text-lg"
+                 :class="item.leida ? 'text-base-content/40' : 'text-warning'"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <span x-show="!item.leida" class="badge badge-warning badge-xs">Nueva</span>
+                <h3 class="font-medium text-sm truncate" x-text="item._productoNombre || 'Producto'"></h3>
+              </div>
+              <p class="text-sm text-base-content/60 mt-1">
+                Stock actual: <span class="font-bold text-error" x-text="item._stockActual || '0'"></span>
+                (minimo: <span x-text="item._umbralMinimo || '0'"></span>)
+              </p>
+              <p class="text-xs text-base-content/40 mt-1" x-text="item._fechaFormateada ? 'Creada: ' + item._fechaFormateada : ''"></p>
+            </div>
+            <div class="flex gap-1 shrink-0">
+              <button class="btn btn-sm btn-ghost" @click="marcarLeida(item)" title="Marcar como leida" x-show="!item.leida">
+                <i class="bi bi-check-lg"></i>
+              </button>
+              <button class="btn btn-sm btn-ghost" @click="window.appRouter.navigate('inventario')" title="Ir al producto">
+                <i class="bi bi-box-seam"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+  </div>
+
+  <div x-show="(!items || !items.length)">
+    <div class="flex flex-col items-center justify-center py-16 text-base-content/50">
+      <i class="bi bi-check-circle text-6xl mb-4 text-success"></i>
+      <p class="text-lg mb-2">No hay alertas</p>
+      <p class="text-sm">Todo el inventario esta en niveles optimos</p>
+    </div>
+  </div>
+
+  <div x-show="cargando" class="space-y-3">
+    <div class="skeleton h-24 w-full"></div>
+    <div class="skeleton h-24 w-full"></div>
+  </div>
+</div>

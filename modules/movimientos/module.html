@@ -1,0 +1,58 @@
+<!-- modules/movimientos/module.html
+     Template de referencia para el modulo Movimientos. -->
+
+<div x-data="movimientosData" x-init="init()">
+  <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+    <i class="bi bi-arrow-left-right"></i> Movimientos
+  </h2>
+
+  <div class="flex flex-wrap gap-2 mb-4">
+    <button class="btn btn-primary" onclick="window.MODULES.inventario.abrirForm(null)">
+      <i class="bi bi-plus-lg"></i> Nuevo Movimiento
+    </button>
+    <input type="search" id="mov-busqueda" onkeyup="window.MODULES.movimientos.filtrar()"
+           placeholder="Buscar..." class="input input-bordered flex-1 min-w-[200px]" />
+    <select id="mov-filtro-tipo" onchange="window.MODULES.movimientos.filtrar()"
+            class="select select-bordered w-36">
+      <option value="">Todos</option>
+      <option value="entrada">Entradas</option>
+      <option value="salida">Salidas</option>
+    </select>
+  </div>
+
+  <div class="overflow-x-auto" x-show="items && items.length">
+    <table class="table table-zebra">
+      <thead>
+        <tr><th>Fecha</th><th>Producto</th><th>Tipo</th><th>Cantidad</th><th>Motivo</th></tr>
+      </thead>
+      <tbody>
+        <tr x-for="item in items" :key="item.id">
+          <td><span class="text-sm" x-text="item._fechaFormateada || ''"></span></td>
+          <td><span class="font-medium" x-text="item._productoNombre || '...'"></span></td>
+          <td>
+            <span class="badge" :class="item.tipo === 'entrada' ? 'badge-success' : 'badge-error'"
+                  x-text="item.tipo"></span>
+          </td>
+          <td><span class="font-bold" :class="item.tipo === 'entrada' ? 'text-success' : 'text-error'"
+                    x-text="item.cantidad"></span></td>
+          <td><span class="text-sm text-base-content/60" x-text="item.motivo || ''"></span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div x-show="(!items || !items.length)" class="flex flex-col items-center justify-center py-16 text-base-content/50">
+    <i class="bi bi-arrow-left-right text-6xl mb-4"></i>
+    <p class="text-lg mb-4">No hay movimientos registrados</p>
+    <p class="text-sm mb-4">Los movimientos se crean al ajustar stock desde Inventario</p>
+    <button class="btn btn-primary" onclick="window.appRouter.navigate('inventario')">
+      <i class="bi bi-box-seam"></i> Ir a Inventario
+    </button>
+  </div>
+
+  <div x-show="cargando" class="space-y-3">
+    <div class="skeleton h-12 w-full"></div>
+    <div class="skeleton h-12 w-full"></div>
+    <div class="skeleton h-12 w-full"></div>
+  </div>
+</div>

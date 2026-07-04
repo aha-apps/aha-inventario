@@ -1,0 +1,320 @@
+﻿<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="AHA Inventario - Control de stock offline-first">
+  <meta name="theme-color" content="#1e3a5f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Inventario">
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+
+  <title>AHA Inventario</title>
+
+  <!-- CSS -->
+  <script src="assets/css/tailwind.play.js"></script>
+  <link rel="stylesheet" href="assets/css/daisyui.min.css">
+  <link rel="stylesheet" href="assets/css/bootstrap-icons.css">
+
+  <style>
+    [x-cloak] { display: none !important; }
+    .skip-link { position: absolute; left: -9999px; z-index: 999; padding: 1em; background: #1e3a5f; color: white; text-decoration: none; }
+    .skip-link:focus { left: 6px; top: 6px; }
+    .scrollbar-thin::-webkit-scrollbar { width: 4px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+    .sidebar-transition { transition: width 0.3s ease, margin-left 0.3s ease; }
+    @media (max-width: 1023px) { .sidebar-desktop { display: none; } }
+    @media (min-width: 1024px) { .sidebar-mobile-overlay { display: none; } }
+  </style>
+</head>
+<body class="min-h-screen bg-base-200">
+
+  <a href="#app-content" class="skip-link">Saltar al contenido</a>
+  <div id="a11y-live-region" aria-live="polite" class="sr-only"></div>
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="fixed top-0 left-0 z-40 h-screen transition-all duration-300 bg-base-200 border-r border-base-300 flex flex-col sidebar-desktop"
+         style="width: 16rem;">
+    <div class="flex items-center h-16 px-4 border-b border-base-300 shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="avatar placeholder">
+          <div class="w-8 rounded-lg bg-primary text-primary-content text-xs font-bold">
+            <span>AI</span>
+          </div>
+        </div>
+        <div class="truncate">
+          <div class="font-semibold text-sm truncate">AHA Inventario</div>
+          <div class="text-[10px] text-base-content/40 leading-tight truncate">Lite</div>
+        </div>
+      </div>
+    </div>
+    <nav class="flex-1 overflow-y-auto overflow-x-hidden py-2 scrollbar-thin">
+      <a href="#/inventario" data-module="inventario" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg transition-colors cursor-pointer hover:bg-base-300 text-base-content/70 hover:text-base-content">
+        <i class="bi bi-box-seam text-lg shrink-0 w-6 text-center"></i>
+        <span class="text-sm truncate">Inventario</span>
+      </a>
+      <a href="#/categorias" data-module="categorias" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg transition-colors cursor-pointer hover:bg-base-300 text-base-content/70 hover:text-base-content">
+        <i class="bi bi-tags text-lg shrink-0 w-6 text-center"></i>
+        <span class="text-sm truncate">Categorias</span>
+      </a>
+      <a href="#/movimientos" data-module="movimientos" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg transition-colors cursor-pointer hover:bg-base-300 text-base-content/70 hover:text-base-content">
+        <i class="bi bi-arrow-left-right text-lg shrink-0 w-6 text-center"></i>
+        <span class="text-sm truncate">Movimientos</span>
+      </a>
+      <a href="#/alertas" data-module="alertas" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg transition-colors cursor-pointer hover:bg-base-300 text-base-content/70 hover:text-base-content">
+        <i class="bi bi-exclamation-triangle text-lg shrink-0 w-6 text-center"></i>
+        <span class="text-sm truncate">Alertas</span>
+      </a>
+      <a href="#/reportes" data-module="reportes" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg transition-colors cursor-pointer hover:bg-base-300 text-base-content/70 hover:text-base-content">
+        <i class="bi bi-graph-up text-lg shrink-0 w-6 text-center"></i>
+        <span class="text-sm truncate">Reportes</span>
+      </a>
+    </nav>
+    <div class="border-t border-base-300 p-3 shrink-0">
+      <div class="flex items-center justify-center">
+        <button id="sidebar-toggle" class="btn btn-ghost btn-sm btn-square" title="Colapsar menu">
+          <i class="bi bi-layout-sidebar"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Mobile sidebar overlay -->
+  <div id="sidebar-mobile-overlay" class="fixed inset-0 z-30 bg-black/50 hidden sidebar-mobile-overlay" style="display:none;"></div>
+
+  <!-- Main content -->
+  <div class="flex-1 flex flex-col min-h-screen sidebar-transition" style="margin-left: 16rem;">
+    <!-- Navbar -->
+    <header class="sticky top-0 z-30 flex items-center h-16 gap-3 px-4 bg-base-100/80 backdrop-blur border-b border-base-300 shadow-sm">
+      <button id="mobile-menu-btn" class="btn btn-ghost btn-sm btn-square lg:hidden">
+        <i class="bi bi-list text-xl"></i>
+      </button>
+      <div class="flex items-center gap-2 text-sm breadcrumbs">
+        <ul>
+          <li><span class="text-base-content/50"><i class="bi bi-house"></i> Inicio</span></li>
+          <li id="breadcrumb-modulo" class="font-medium text-base-content">Inventario</li>
+        </ul>
+      </div>
+      <div class="flex-1"></div>
+      <div class="flex items-center gap-1">
+        <button class="btn btn-ghost btn-sm btn-square" id="btn-search" title="Buscar (Ctrl+K)">
+          <i class="bi bi-search"></i>
+        </button>
+        <button class="btn btn-ghost btn-sm btn-square" id="btn-theme" title="Tema">
+          <i class="bi bi-moon-stars"></i>
+        </button>
+        <div class="dropdown dropdown-end">
+          <button class="btn btn-ghost btn-sm btn-circle" id="btn-user">
+            <div class="avatar placeholder">
+              <div class="w-7 rounded-full bg-primary text-primary-content text-xs font-bold">?</div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- App content -->
+    <main id="app-content" class="flex-1 p-4 md:p-6">
+      <div class="flex items-center justify-center h-64 text-base-content/40">
+        <div class="text-center">
+          <i class="bi bi-box-seam text-5xl mb-4 block animate-pulse"></i>
+          <p class="text-sm">Cargando...</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast container -->
+  <div id="toast-container" class="toast toast-end toast-bottom z-[80]"></div>
+
+  <!-- Loading overlay -->
+  <div id="ui-loading-overlay" class="fixed inset-0 z-[90] flex items-center justify-center bg-base-200/80 backdrop-blur-sm hidden">
+    <div class="text-center">
+      <span class="loading loading-spinner loading-lg text-primary"></span>
+      <p class="mt-2 text-sm text-base-content/60"></p>
+    </div>
+  </div>
+
+  <!-- Scripts: JS libraries -->
+  <script src="assets/js/alpine.js"></script>
+  <script src="assets/js/dexie.js"></script>
+  <script src="assets/js/crypto-js.js"></script>
+  <script src="assets/js/pako.js"></script>
+  <script src="assets/js/chart.js"></script>
+  <script src="assets/js/qrcode.min.js"></script>
+  <script src="assets/js/jszip.js"></script>
+
+  <!-- Alpine store init (inline, before core) -->
+  <script>
+    document.addEventListener('alpine:init', function () {
+      Alpine.store('app', {
+        moduloActual: '',
+        cargando: false,
+        error: null
+      });
+      Alpine.store('theme', {
+        mode: localStorage.getItem('theme') || 'light',
+        init: function () {
+          var self = this;
+          this.$watch('mode', function (val) {
+            localStorage.setItem('theme', val);
+            document.documentElement.setAttribute('data-theme', val);
+          });
+        }
+      });
+      Alpine.store('sidebar', {
+        colapsado: localStorage.getItem('sidebar_colapsado') === 'true',
+        mobileOpen: false
+      });
+      Alpine.store('network', {
+        online: navigator.onLine,
+        init: function () {
+          var self = this;
+          window.addEventListener('online', function () { self.online = true; });
+          window.addEventListener('offline', function () { self.online = false; });
+        }
+      });
+    });
+  </script>
+
+  <!-- Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js');
+    }
+  </script>
+
+  <!-- Core scripts -->
+  <script src="project.config.js"></script>
+  <script src="core/env.js"></script>
+  <script src="core/db.js"></script>
+  <script src="core/crypto.js"></script>
+  <script src="core/ui.js"></script>
+  <script src="core/theme.js"></script>
+  <script src="core/network.js"></script>
+  <script src="core/brand-loader.js"></script>
+  <script src="core/app.js"></script>
+  <script src="core/search-palette.js"></script>
+  <script src="core/file-store.js"></script>
+  <script src="core/sync.js"></script>
+  <script src="core/license.js"></script>
+  <script src="core/feature-flags.js"></script>
+
+  <!-- Module scripts -->
+  <script src="modules/categorias/module.js"></script>
+  <script src="modules/inventario/module.js"></script>
+  <script src="modules/movimientos/module.js"></script>
+  <script src="modules/alertas/module.js"></script>
+  <script src="modules/reportes/module.js"></script>
+
+  <!-- Main entry -->
+  <script src="main.js"></script>
+
+  <!-- Shell interactive setup -->
+  <script>
+    (function () {
+      // Sidebar toggle
+      var sidebarToggle = document.getElementById('sidebar-toggle');
+      if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function () {
+          var sidebar = document.getElementById('sidebar');
+          var main = document.querySelector('[style*="margin-left"]');
+          var colapsado = localStorage.getItem('sidebar_colapsado') === 'true';
+          var newState = !colapsado;
+          localStorage.setItem('sidebar_colapsado', newState);
+          if (newState) {
+            sidebar.style.width = '4rem';
+            if (main) main.style.marginLeft = '4rem';
+            sidebarToggle.classList.add('rotate-180');
+          } else {
+            sidebar.style.width = '16rem';
+            if (main) main.style.marginLeft = '16rem';
+            sidebarToggle.classList.remove('rotate-180');
+          }
+        });
+        // Restore state
+        if (localStorage.getItem('sidebar_colapsado') === 'true') {
+          var sidebar = document.getElementById('sidebar');
+          var main = document.querySelector('[style*="margin-left"]');
+          if (sidebar) sidebar.style.width = '4rem';
+          if (main) main.style.marginLeft = '4rem';
+          sidebarToggle.classList.add('rotate-180');
+        }
+      }
+
+      // Mobile menu
+      var mobileBtn = document.getElementById('mobile-menu-btn');
+      if (mobileBtn) {
+        mobileBtn.addEventListener('click', function () {
+          var sidebar = document.getElementById('sidebar');
+          var overlay = document.getElementById('sidebar-mobile-overlay');
+          var isVisible = sidebar.style.display !== 'none' && sidebar.style.display !== '';
+          if (isVisible && window.innerWidth < 1024) {
+            sidebar.style.display = 'none';
+            if (overlay) overlay.style.display = 'none';
+          } else if (window.innerWidth < 1024) {
+            sidebar.style.display = 'flex';
+            if (overlay) overlay.style.display = 'block';
+          }
+        });
+      }
+
+      // Theme toggle
+      var themeBtn = document.getElementById('btn-theme');
+      if (themeBtn) {
+        themeBtn.addEventListener('click', function () {
+          var html = document.documentElement;
+          var current = html.getAttribute('data-theme') || 'light';
+          var next = current === 'dark' ? 'light' : 'dark';
+          html.setAttribute('data-theme', next);
+          localStorage.setItem('theme', next);
+          themeBtn.innerHTML = next === 'dark'
+            ? '<i class="bi bi-sun"></i>'
+            : '<i class="bi bi-moon-stars"></i>';
+        });
+        var savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        if (themeBtn) {
+          themeBtn.innerHTML = savedTheme === 'dark'
+            ? '<i class="bi bi-sun"></i>'
+            : '<i class="bi bi-moon-stars"></i>';
+        }
+      }
+
+      // Search button
+      var searchBtn = document.getElementById('btn-search');
+      if (searchBtn) {
+        searchBtn.addEventListener('click', function () {
+          if (window.searchPalette) {
+            window.searchPalette.open();
+          }
+        });
+      }
+
+      // Breadcrumb updates via hashchange
+      window.addEventListener('hashchange', function () {
+        var bc = document.getElementById('breadcrumb-modulo');
+        if (!bc) return;
+        var hash = window.location.hash || '#/';
+        var match = hash.match(/^#\/([^?]+)/);
+        var moduleId = match ? match[1] : null;
+        if (moduleId && window.MODULES && window.MODULES[moduleId]) {
+          bc.textContent = window.MODULES[moduleId].titulo || moduleId;
+        } else if (moduleId) {
+          bc.textContent = moduleId.charAt(0).toUpperCase() + moduleId.slice(1);
+        } else {
+          bc.textContent = 'Inicio';
+        }
+      });
+
+      console.log('[shell] UI interactiva lista');
+    })();
+  </script>
+</body>
+</html>
+

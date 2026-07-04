@@ -1,0 +1,13 @@
+{
+  "name": "AHA Inventario",
+  "short_name": "Inventario",
+  "description": "Control de stock offline-first con gestion de productos, categorias, movimientos y alertas",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1e3a5f",
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

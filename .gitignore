@@ -1,0 +1,16 @@
+# OS
+Thumbs.db
+.DS_Store
+Desktop.ini
+
+# Editor
+*.sublime-*
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Temp
+*.log
+node_modules/

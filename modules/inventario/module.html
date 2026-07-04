@@ -1,0 +1,94 @@
+<!-- modules/inventario/module.html
+     Template de referencia para el modulo Inventario.
+     El renderizado se genera dinamicamente desde module.js render().
+     Este archivo documenta la estructura Alpine utilizada. -->
+
+<!-- Vista principal: toolbar + tabla + empty state -->
+<div x-data="inventarioData" x-init="init()">
+  <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+    <i class="bi bi-box-seam"></i> Inventario
+  </h2>
+
+  <!-- Toolbar -->
+  <div class="flex flex-wrap gap-2 mb-4">
+    <button class="btn btn-primary" onclick="window.MODULES.inventario.abrirForm(null)">
+      <i class="bi bi-plus-lg"></i> Agregar Producto
+    </button>
+    <input type="search" id="inv-busqueda" onkeyup="window.MODULES.inventario.filtrar()"
+           placeholder="Buscar..." class="input input-bordered flex-1 min-w-[200px]" />
+    <select id="inv-filtro-categoria" onchange="window.MODULES.inventario.filtrar()"
+            class="select select-bordered w-44">
+      <option value="">Todas las categorias</option>
+    </select>
+  </div>
+
+  <!-- Tabla responsive -->
+  <div class="overflow-x-auto" x-show="items && items.length">
+    <table class="table table-zebra">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>SKU</th>
+          <th>Categoria</th>
+          <th>Precio</th>
+          <th>Stock</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr x-for="item in items" :key="item.id"
+            :class="item.cantidad <= item.umbralMinimo ? 'bg-warning/5' : ''">
+          <td>
+            <div class="flex items-center gap-2">
+              <div class="avatar">
+                <div class="w-10 rounded">
+                  <img :src="item._imgUrl || 'data/defaults/placeholder.svg'"
+                       :alt="item.nombre"
+                       @error="$el.src='data/defaults/placeholder.svg'">
+                </div>
+              </div>
+              <span class="font-medium" x-text="item.nombre"></span>
+            </div>
+          </td>
+          <td><span class="text-sm font-mono" x-text="item.sku"></span></td>
+          <td><span x-text="item._categoriaNombre || ''"></span></td>
+          <td><span class="font-medium" x-text="item._precioFormateado || '$0.00'"></span></td>
+          <td>
+            <div class="flex items-center gap-2">
+              <span class="font-bold" :class="item.cantidad <= item.umbralMinimo ? 'text-error' : 'text-success'"
+                    x-text="item.cantidad"></span>
+              <span x-show="item.cantidad <= item.umbralMinimo" class="badge badge-warning badge-xs">min</span>
+            </div>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-ghost" @click="editar(item)" title="Editar">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-ghost text-info" @click="ajustarStock(item)" title="Ajustar stock">
+              <i class="bi bi-arrow-left-right"></i>
+            </button>
+            <button class="btn btn-sm btn-ghost text-error" @click="eliminar(item)" title="Eliminar">
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Empty state -->
+  <div x-show="(!items || !items.length)" class="flex flex-col items-center justify-center py-16 text-base-content/50">
+    <i class="bi bi-box-seam text-6xl mb-4"></i>
+    <p class="text-lg mb-4">No hay productos aun</p>
+    <button class="btn btn-primary" onclick="window.MODULES.inventario.abrirForm(null)">
+      <i class="bi bi-plus-lg"></i> Agregar primero
+    </button>
+  </div>
+
+  <!-- Loading skeleton -->
+  <div x-show="cargando" class="space-y-3">
+    <div class="skeleton h-12 w-full"></div>
+    <div class="skeleton h-12 w-full"></div>
+    <div class="skeleton h-12 w-full"></div>
+  </div>
+</div>

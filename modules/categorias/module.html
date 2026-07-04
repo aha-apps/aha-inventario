@@ -1,0 +1,54 @@
+<!-- modules/categorias/module.html
+     Template de referencia para el modulo Categorias.
+     El renderizado se genera dinamicamente desde module.js render(). -->
+
+<div x-data="categoriasData" x-init="init()">
+  <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+    <i class="bi bi-tags"></i> Categorias
+  </h2>
+
+  <div class="flex flex-wrap gap-2 mb-4">
+    <button class="btn btn-primary" onclick="window.MODULES.categorias.abrirForm(null)">
+      <i class="bi bi-plus-lg"></i> Agregar
+    </button>
+    <input type="search" id="cat-busqueda" onkeyup="window.MODULES.categorias.filtrar(this.value)"
+           placeholder="Buscar..." class="input input-bordered flex-1 min-w-[200px]" />
+  </div>
+
+  <div class="overflow-x-auto" x-show="items && items.length">
+    <table class="table table-zebra">
+      <thead>
+        <tr><th>Nombre</th><th>Color</th><th>Acciones</th></tr>
+      </thead>
+      <tbody>
+        <tr x-for="item in items" :key="item.id">
+          <td><span class="font-medium" x-text="item.nombre"></span></td>
+          <td>
+            <div class="flex items-center gap-2">
+              <div class="w-5 h-5 rounded-full" :style="'background-color: ' + item.color"></div>
+              <span class="text-sm text-base-content/60" x-text="item.color"></span>
+            </div>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-ghost" @click="editar(item)"><i class="bi bi-pencil"></i></button>
+            <button class="btn btn-sm btn-ghost text-error" @click="eliminar(item)"><i class="bi bi-trash"></i></button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div x-show="(!items || !items.length)" class="flex flex-col items-center justify-center py-16 text-base-content/50">
+    <i class="bi bi-tags text-6xl mb-4"></i>
+    <p class="text-lg mb-4">No hay categorias aun</p>
+    <button class="btn btn-primary" onclick="window.MODULES.categorias.abrirForm(null)">
+      <i class="bi bi-plus-lg"></i> Agregar primero
+    </button>
+  </div>
+
+  <div x-show="cargando" class="space-y-3">
+    <div class="skeleton h-12 w-full"></div>
+    <div class="skeleton h-12 w-full"></div>
+    <div class="skeleton h-12 w-full"></div>
+  </div>
+</div>

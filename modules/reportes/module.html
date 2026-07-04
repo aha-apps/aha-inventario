@@ -1,0 +1,112 @@
+﻿<!-- modules/reportes/module.html
+     Template de referencia para el modulo Reportes. -->
+
+<div>
+  <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+    <i class="bi bi-graph-up"></i> Reportes
+  </h2>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6" x-data="statsData" x-init="init()">
+    <div class="stat bg-base-100 border border-base-300 rounded-xl shadow-sm">
+      <div class="stat-figure text-primary"><i class="bi bi-box-seam text-2xl"></i></div>
+      <div class="stat-title">Productos</div>
+      <div class="stat-value text-2xl" x-text="data.totalProductos">0</div>
+      <div class="stat-desc" x-text="'En ' + data.totalCategorias + ' categorias'"></div>
+    </div>
+    <div class="stat bg-base-100 border border-base-300 rounded-xl shadow-sm">
+      <div class="stat-figure text-success"><i class="bi bi-coin text-2xl"></i></div>
+      <div class="stat-title">Valor inventario</div>
+      <div class="stat-value text-2xl text-success" x-text="data.valorFormateado">$0</div>
+      <div class="stat-desc">Precio de compra total</div>
+    </div>
+    <div class="stat bg-base-100 border border-base-300 rounded-xl shadow-sm">
+      <div class="stat-figure text-info"><i class="bi bi-arrow-left-right text-2xl"></i></div>
+      <div class="stat-title">Movimientos</div>
+      <div class="stat-value text-2xl" x-text="data.totalMovimientos">0</div>
+      <div class="stat-desc">Entradas y salidas</div>
+    </div>
+    <div class="stat bg-base-100 border border-base-300 rounded-xl shadow-sm">
+      <div class="stat-figure text-warning"><i class="bi bi-exclamation-triangle text-2xl"></i></div>
+      <div class="stat-title">Alertas</div>
+      <div class="stat-value text-2xl" :class="data.alertasPendientes > 0 ? 'text-warning' : 'text-success'" x-text="data.alertasPendientes">0</div>
+      <div class="stat-desc" x-text="data.alertasPendientes > 0 ? 'Requieren atencion' : 'Sin novedad'"></div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="card bg-base-100 border border-base-300 shadow-sm" x-data="chartData" x-init="init()">
+      <div class="card-body">
+        <h3 class="card-title text-base flex items-center gap-2">
+          <i class="bi bi-pie-chart text-primary"></i>
+          <span>Productos por Categoria</span>
+        </h3>
+        <div x-show="cargando" class="skeleton h-64 w-full rounded-lg"></div>
+        <div x-show="!cargando">
+          <canvas x-ref="chartCategoria" class="w-full h-64"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="card bg-base-100 border border-base-300 shadow-sm">
+      <div class="card-body">
+        <h3 class="card-title text-base flex items-center gap-2">
+          <i class="bi bi-exclamation-triangle text-warning"></i>
+          <span>Stock Bajo</span>
+        </h3>
+        <div class="space-y-2" x-data="stockBajoData" x-init="init()">
+          <template x-for="item in items" :key="item.id">
+            <div class="flex items-center justify-between p-2 rounded-lg bg-base-200">
+              <div>
+                <div class="text-sm font-medium" x-text="item.nombre"></div>
+                <div class="text-xs text-base-content/50">Stock: <span class="text-error font-bold" x-text="item.cantidad"></span> / Min: <span x-text="item.umbralMinimo"></span></div>
+              </div>
+              <button class="btn btn-xs btn-ghost" @click="window.appRouter.navigate('inventario')">
+                <i class="bi bi-box-seam"></i>
+              </button>
+            </div>
+          </template>
+          <div x-show="!items.length" class="flex flex-col items-center justify-center h-48 text-base-content/40">
+            <i class="bi bi-check-circle text-4xl mb-2 text-success"></i>
+            <p class="text-sm">Todo en orden, sin stock bajo</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card bg-base-100 border border-base-300 shadow-sm mt-6" x-data="actividadData" x-init="init()">
+    <div class="card-body">
+      <h3 class="card-title text-base flex items-center gap-2 mb-2">
+        <i class="bi bi-clock-history text-primary"></i>
+        <span>Actividad Reciente</span>
+      </h3>
+      <div x-show="cargando" class="space-y-2">
+        <div class="skeleton h-12 w-full"></div>
+        <div class="skeleton h-12 w-full"></div>
+        <div class="skeleton h-12 w-full"></div>
+      </div>
+      <div x-show="!cargando && items.length" class="space-y-2">
+        <template x-for="item in items" :key="item.id">
+          <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-base-200 transition-colors">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                 :class="item.tipo === 'entrada' ? 'bg-success/20 text-success' : 'bg-error/20 text-error'">
+              <i :class="item.tipo === 'entrada' ? 'bi bi-box-arrow-in-down' : 'bi bi-box-arrow-up'" class="text-sm"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm">
+                <span class="font-medium" x-text="item._productoNombre || 'Producto'"></span>
+                <span :class="item.tipo === 'entrada' ? 'text-success' : 'text-error'"
+                      x-text="(item.tipo === 'entrada' ? '+ ' : '- ') + item.cantidad"></span>
+              </div>
+              <div class="text-xs text-base-content/40" x-text="item._fechaFormateada"></div>
+            </div>
+            <span class="badge badge-sm" :class="item.tipo === 'entrada' ? 'badge-success' : 'badge-error'" x-text="item.tipo"></span>
+          </div>
+        </template>
+      </div>
+      <div x-show="!cargando && !items.length" class="flex flex-col items-center justify-center h-32 text-base-content/40">
+        <p class="text-sm">Sin actividad reciente</p>
+      </div>
+    </div>
+  </div>
+</div>
