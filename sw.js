@@ -28,7 +28,7 @@ var ASSETS = [
   'modules/alertas/module.html',
   'modules/reportes/module.js',
   'modules/reportes/module.html',
-  'assets/css/tailwind.min.css',
+  'assets/css/tailwind.play.js',
   'assets/css/daisyui.min.css',
   'assets/css/bootstrap-icons.css',
   'assets/js/alpine.js',
